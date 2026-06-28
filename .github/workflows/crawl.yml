@@ -1,0 +1,38 @@
+name: daily-notice-sync
+
+on:
+  schedule:
+    # 07:00 KST = 22:00 UTC (GitHub cron 은 UTC). 부하에 따라 수 분 지연될 수 있음.
+    - cron: "0 22 * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: notice-sync
+  cancel-in-progress: false
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # 게시판(GitHub Pages) 크롤 → 구조화는 seed JOIN → data/notices.json upsert.
+      # 실패 시 job 실패(비정상 종료) → 빈/부분 notices.json 커밋 방지.
+      - name: Sync notices from board
+        run: node scripts/sync-notices.mjs
+      - name: Commit if changed
+        run: |
+          if ! git diff --quiet data/notices.json; then
+            git config user.name "notice-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add data/notices.json
+            git commit -m "chore(data): daily notice sync $(date -u +%FT%TZ)"
+            git push
+          else
+            echo "변경 없음 — 커밋 생략"
+          fi
