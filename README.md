@@ -78,6 +78,47 @@ curl -o /dev/null -w "%{http_code}" localhost:3000/mcp   # 405 (stateless)
 | `PAGES_BASE` | 배포 Pages URL | 게시판 베이스(빌드/크롤 스크립트) |
 | `RATE_LIMIT_MAX` | `120` | IP당 분당 요청 한도 |
 
+## PlayMCP / 카카오 MCP Hub 등록 정보 (복붙용)
+
+> PlayMCP 콘솔·카카오 MCP Hub 등록 폼에 그대로 붙여 넣을 수 있는 항목 모음입니다. 심사 규칙상 **모든 툴 description에 서비스명 `whowillnotify`가 포함**되어야 하고, **모든 툴에 annotations**(`title`/`readOnlyHint`/`destructiveHint`/`idempotentHint`/`openWorldHint`)가 정의되어야 합니다 — 현재 코드는 이를 충족합니다.
+
+| 항목 | 값 |
+|---|---|
+| **서버 이름** | who-will-notify-mcp |
+| **서비스명(식별자)** | `whowillnotify` |
+| **한 줄 소개** | 학과 공지사항을 컨텍스트화해 "수강신청 언제?", "1학년 뭐 들어?" 같은 질문에 출처와 함께 답하는 MCP 서버 |
+| **카테고리** | 교육 / 학사 / 정보 검색 |
+| **태그** | `공지`, `학사일정`, `수강신청`, `개설과목`, `대학`, `RAG`, `read-only` |
+| **전송 방식** | Streamable HTTP (stateless) — `POST /mcp` |
+| **인증** | 불필요(공개 read-only) |
+| **개인정보 수집** | 없음(더미/공개 공지 데이터만 read-only 조회) |
+
+### 상세 설명 (Description)
+
+> 학과 **공지사항 30건**을 구조화해 담아두고, 사용자의 자연어 질문을 tool calling으로 받아 관련 공지·개설과목·학사일정을 **출처와 함께** 반환하는 `whowillnotify` MCP 서버입니다. 검색/목록은 요약만, 본문 전문은 `get_notice`로만 제공하며(응답 크기 규율), 과목·일정 같은 구조화 데이터는 항상 JSON 원천에서 읽어 정확도를 보장합니다. 모든 툴은 **읽기 전용(read-only)** 이라 데이터를 변경하지 않습니다.
+
+### 대표 질문 (예시 프롬프트)
+
+등록 폼의 "사용 예시" 및 심사 테스트에 사용하세요.
+
+- `이번에 1학년은 어떤 과목 들을 수 있어?` → `get_courses({ grade: 1 })`
+- `2학기 수강신청 언제부터야?` → `get_academic_dates({ kind: "수강신청" })`
+- `등록금 납부 기간 알려줘` → `get_academic_dates({ kind: "등록금" })`
+- `운영체제 강의 누가 가르쳐?` → `get_courses({ professor: "..." })` / `search_notices`
+- `장학금 관련 공지 있어?` → `search_notices({ query: "장학" })`
+
+### 툴 요약 (annotations 포함)
+
+5개 툴 모두 `readOnlyHint: true`, `destructiveHint: false`, `idempotentHint: true`, `openWorldHint: false`.
+
+| 툴 | description(서비스명 포함) 요약 | 입력 |
+|---|---|---|
+| `search_notices` | whowillnotify에서 질문 키워드로 공지 요약을 점수순 검색 | `query`, `limit?` |
+| `list_notices` | whowillnotify에서 공지를 최신순 나열(분류/학기 필터) | `category?`, `semester?`, `limit?` |
+| `get_notice` | whowillnotify에서 id로 공지 전문 반환 | `id` |
+| `get_courses` | whowillnotify에서 개설 교과목 조회 | `grade?`, `semester?`, `professor?` |
+| `get_academic_dates` | whowillnotify에서 학사 일정 조회 | `kind?`, `grade?` |
+
 ## 배포 · PlayMCP 등록 체크리스트 (사용자 수행)
 
 > 코드/게시판/데이터는 준비 완료. 아래 콘솔 조작은 **사용자가 직접** 수행합니다(브라우저 로그인·OTP·버튼 클릭은 대행 불가).
