@@ -31,7 +31,7 @@ export function registerCourseTools(server: McpServer, ctx: ToolCtx): void {
     {
       title: "개설 과목 조회",
       description:
-        "whowillnotify 서비스에서 2학기 개설 교과목을 학년/학기/담당교수로 조회해 (학년·과목명·담당교수·수업시간·학점·강의실) 목록을 반환합니다. " +
+        "who-will-notify-mcp 서비스에서 2학기 개설 교과목을 학년/학기/담당교수로 조회해 (학년·과목명·담당교수·수업시간·학점·강의실) 목록을 반환합니다. " +
         "'1학년은 어떤 과목 들을 수 있어?' 같은 질문에 grade=1 로 사용하세요.",
       annotations: {
         title: "개설 과목 조회",
@@ -77,7 +77,7 @@ export function registerCourseTools(server: McpServer, ctx: ToolCtx): void {
     {
       title: "학사 일정 조회",
       description:
-        "whowillnotify 서비스에서 수강신청·정정·등록금 납부 등 학사 일정을 (구분·기간·대상학년)으로 반환합니다. " +
+        "who-will-notify-mcp 서비스에서 수강신청·정정·등록금 납부 등 학사 일정을 (구분·기간·대상학년)으로 반환합니다. " +
         "'수강신청 언제부터야?', '등록금 납부 기간 알려줘' 같은 질문에 kind 로 필터링하세요.",
       annotations: {
         title: "학사 일정 조회",
