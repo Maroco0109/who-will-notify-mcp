@@ -1,8 +1,9 @@
 import type { Notice } from "./types.js";
+import { byRecruitEndAsc, scholarshipStatus, statusRank, kstToday } from "./date.js";
 
 // ============================================================================
-// 키워드/전문 검색 (임베딩 없음 — ~30건 규모에 충분)
-//   가중치: 제목 ×3, 태그(분류·학년·학기) ×2, 본문+과목+일정 ×1
+// 키워드/전문 검색 (임베딩 없음 — 장학금 공고 규모에 충분)
+//   가중치: 제목 ×3, 태그(분류·기관·대학구분·학년) ×2, 본문 ×1
 // ============================================================================
 
 export interface ScoredNotice {
@@ -41,16 +42,10 @@ function countOcc(haystack: string, needle: string): number {
 }
 
 function haystacks(n: Notice): { title: string; tags: string; body: string } {
-  const courseText = (n.courses ?? [])
-    .map((c) => `${c.grade}학년 ${c.courseName} ${c.professor} ${c.schedule} ${c.room ?? ""}`)
-    .join(" ");
-  const dateText = (n.dates ?? [])
-    .map((d) => `${d.label} ${d.start} ${d.end ?? ""} ${d.grade ? `${d.grade}학년` : ""}`)
-    .join(" ");
   return {
     title: n.title.toLowerCase(),
-    tags: `${n.category} ${n.semester ?? ""} ${n.grade ? `${n.grade}학년` : ""}`.toLowerCase(),
-    body: `${n.body} ${courseText} ${dateText}`.toLowerCase(),
+    tags: `${n.category} ${n.organization} ${n.universityType} ${n.gradeCriteria}`.toLowerCase(),
+    body: n.body.toLowerCase(),
   };
 }
 
@@ -72,13 +67,17 @@ export function searchNotices(
 ): ScoredNotice[] {
   const tokens = tokenize(query);
   if (tokens.length === 0) return [];
+  const today = kstToday();
   return notices
     .map((notice) => ({ notice, score: scoreNotice(notice, tokens) }))
     .filter((s) => s.score > 0)
     .sort(
       (a, b) =>
         b.score - a.score ||
-        b.notice.publishedAt.localeCompare(a.notice.publishedAt),
+        // 동점 tiebreak: 활성 먼저(statusRank) → recruitEnd 오름차순(상시 last, null-safe)
+        statusRank(scholarshipStatus(a.notice.recruitEnd, today)) -
+          statusRank(scholarshipStatus(b.notice.recruitEnd, today)) ||
+        byRecruitEndAsc(a.notice, b.notice),
     )
     .slice(0, limit);
 }

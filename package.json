@@ -3,15 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "학과 공지사항을 모아 컨텍스트화하고 질문에 답하는 카카오 PlayMCP 직등록형 MCP 서버",
+  "description": "한국장학재단(공공데이터포털) 장학금 공고를 모아 컨텍스트화하고 질문에 답하는 카카오 PlayMCP 직등록형 MCP 서버",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
     "build": "tsc",
     "start:prod": "node dist/index.js",
     "typecheck": "tsc --noEmit",
-    "build-board": "node scripts/build-board.mjs",
-    "sync": "node scripts/sync-notices.mjs",
+    "sync": "node --env-file=.env scripts/sync-notices.mjs",
     "host": "node scripts/host-test.mjs",
     "test": "node --test test/*.test.mjs"
   },

@@ -1,7 +1,7 @@
 import { startHttpServer } from "./server.js";
 import { createNoticeStore } from "./store.js";
 import { registerNoticeTools } from "./tools/notices.js";
-import { registerCourseTools } from "./tools/courses.js";
+import { registerScholarshipTools } from "./tools/scholarships.js";
 import { INSTRUCTIONS } from "./instructions.js";
 import type { ToolCtx } from "./types.js";
 
@@ -19,7 +19,7 @@ startHttpServer({
   instructions: INSTRUCTIONS,
   register: (server) => {
     registerNoticeTools(server, ctx); // search_notices / list_notices / get_notice
-    registerCourseTools(server, ctx); // get_courses / get_academic_dates
+    registerScholarshipTools(server, ctx); // get_scholarship_dates / find_scholarships
   },
   health: () => store.status(),
 });

@@ -23,7 +23,9 @@ const RAW_URL =
   "https://raw.githubusercontent.com/Maroco0109/who-will-notify-mcp/main/data/notices.json";
 const TTL_MS = Number(process.env.NOTICES_TTL_MS ?? 15 * 60 * 1000);
 const FETCH_TIMEOUT_MS = Number(process.env.NOTICES_FETCH_TIMEOUT_MS ?? 8000);
-const MAX_BYTES = Number(process.env.NOTICES_MAX_BYTES ?? 512 * 1024);
+// TODO(0b): recompute from measured bytes/row × max-retained-rows × safety factor.
+// 실데이터(0b) 전까지 넉넉한 16MB 로 둔다 — 과소 추정 시 fetchRaw throw → 무한 stale-serve freeze 방지.
+const MAX_BYTES = Number(process.env.NOTICES_MAX_BYTES ?? 16 * 1024 * 1024);
 const BAKED_PATH = process.env.NOTICES_BAKED_PATH ?? "./data/notices.json";
 
 function validateNotices(parsed: unknown): Notice[] {
@@ -36,7 +38,8 @@ function validateNotices(parsed: unknown): Notice[] {
       typeof n?.id !== "string" ||
       typeof n?.title !== "string" ||
       typeof n?.body !== "string" ||
-      typeof n?.publishedAt !== "string"
+      !(typeof n?.recruitStart === "string" || n?.recruitStart === null) ||
+      !(typeof n?.recruitEnd === "string" || n?.recruitEnd === null)
     ) {
       throw new Error("invalid notice shape");
     }
