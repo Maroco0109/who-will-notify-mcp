@@ -14,6 +14,12 @@ export interface ScoredNotice {
 // 한국어 조사 가벼운 절단(2글자 이상 토큰에만)
 const JOSA = ["으로", "에서", "에게", "까지", "부터", "은", "는", "이", "가", "을", "를", "의", "에", "도", "와", "과", "로"];
 
+// 도메인 불용어: 거의 모든 공고에 등장해 변별력이 없는 토큰. 검색에서 제외해
+// "하버드대 교환학생 장학금" 같은 범위 밖 질의가 '장학금' 매칭으로 오탐되지 않게 한다.
+const STOPWORDS = new Set([
+  "장학금", "장학생", "장학", "지원", "신청", "대상", "공고", "관련", "있어", "알려줘", "뭐",
+]);
+
 function stripJosa(tok: string): string {
   if (tok.length < 2) return tok;
   for (const j of JOSA) {
@@ -27,7 +33,7 @@ export function tokenize(query: string): string[] {
     .toLowerCase()
     .split(/[\s,./()[\]{}!?~·:;"'`]+/)
     .map((t) => stripJosa(t.trim()))
-    .filter((t) => t.length >= 1);
+    .filter((t) => t.length >= 1 && !STOPWORDS.has(t));
 }
 
 function countOcc(haystack: string, needle: string): number {
