@@ -1,4 +1,5 @@
 import type { Notice } from "../types.js";
+import { scholarshipStatus, kstToday, type ScholarshipStatus } from "../date.js";
 
 // 툴 응답 공통 유틸 ──────────────────────────────────────────────────────────
 
@@ -57,16 +58,24 @@ export interface NoticeSummary {
   id: string;
   title: string;
   category: string;
-  publishedAt: string;
+  status: ScholarshipStatus; // 모집중/마감임박/상시/마감 (KST today 기준)
+  recruitStart: string | null;
+  recruitEnd: string | null;
   snippet: string;
 }
 
-export function summarize(n: Notice, snippet: string): NoticeSummary {
+export function summarize(
+  n: Notice,
+  snippet: string,
+  today = kstToday(),
+): NoticeSummary {
   return {
     id: n.id,
     title: n.title,
     category: n.category,
-    publishedAt: n.publishedAt,
+    status: scholarshipStatus(n.recruitEnd, today),
+    recruitStart: n.recruitStart,
+    recruitEnd: n.recruitEnd,
     snippet: snippet.slice(0, SNIPPET_MAX),
   };
 }

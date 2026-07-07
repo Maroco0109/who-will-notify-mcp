@@ -3,3 +3,6 @@ dist/
 *.log
 .env
 # ※ data/notices.json 은 repo-as-DB 의 영속 저장소이므로 커밋한다 (gitignore 하지 않음)
+
+# OMC 작업 디렉토리(계획/리서치/상태) — 제품 레포에 커밋하지 않음
+.omc/

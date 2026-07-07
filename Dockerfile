@@ -11,6 +11,8 @@ RUN npm run build
 FROM node:22-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
+# 런타임 모집중/마감임박 필터가 KST 달력일 기준으로 '오늘'을 계산하도록 타임존 고정.
+ENV TZ=Asia/Seoul
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist

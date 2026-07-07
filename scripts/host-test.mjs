@@ -4,7 +4,7 @@
 //
 //   1) 다른 터미널에서 서버:  npm run dev   (기본 :3000)
 //   2) 배선 점검만(키 불필요): node scripts/host-test.mjs
-//      실제 대화:              OPENAI_API_KEY=sk-... node scripts/host-test.mjs "1학년은 어떤 과목 들을 수 있어?"
+//      실제 대화:              OPENAI_API_KEY=sk-... node scripts/host-test.mjs "소득 3분위 이하 신청 가능한 장학금 있어?"
 //   환경변수: PORT(기본 3000), OPENAI_MODEL(기본 gpt-4o-mini)
 // ============================================================================
 import readline from "node:readline/promises";
@@ -40,7 +40,7 @@ console.log(
 if (!process.env.OPENAI_API_KEY) {
   console.log("\nℹ️  OPENAI_API_KEY 없음 — MCP 배선 점검만 완료 (LLM 호출 생략).");
   console.log(
-    '   실제 대화: OPENAI_API_KEY=sk-... node scripts/host-test.mjs "1학년은 어떤 과목 들을 수 있어?"',
+    '   실제 대화: OPENAI_API_KEY=sk-... node scripts/host-test.mjs "소득 3분위 이하 신청 가능한 장학금 있어?"',
   );
   await mcp.close();
   process.exit(0);
